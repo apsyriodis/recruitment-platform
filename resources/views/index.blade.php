@@ -10,8 +10,9 @@
         {{-- Header --}}
         <div class="page-header">
             <div>
-                <h2>RECRUITMENT PLATFORM - TIMELINE</h2>
-                <span class="eyebro">Track every candidate's recruitment journey.</span>
+                <span class="eyebrow">Timeline</span>
+                <h2>Recruitment Platform</h2>
+                <span>Track every candidate's recruitment journey.</span>
             </div>
 
             <a href="{{ route('timeline.create') }}" class="btn btn-dark">
