@@ -65,16 +65,17 @@
 
                             @php
                                 $latestStep = $timeline->steps()->latest()->first();
-                                $latestStatus = $latestStep ? $latestStep->current_status : 'Pending';
+                                $latestStatus = $latestStep ? $latestStep->current_status : App\Enums\StatusCategory::PENDING->value;
                                 $latestCategory = $latestStep ? $latestStep->step_category : '';
                                 $statusLower = strtolower($latestStatus);
+                                $latestStatusLabel = App\Enums\StatusCategory::labelFor($latestStatus);
+                                $latestCategoryLabel = App\Enums\StepCategory::labelFor($latestCategory);
                             @endphp
 
-                            {{-- Timeline Status Badge με Status και Category --}}
                             <div class="timeline-status-badge {{ !$latestStep ? 'empty' : '' }}">
                                 <span class="status-dot {{ $statusLower }}"></span>
                                 <span class="status-text">
-                                    {{ $latestStep ? "{$latestStatus} - {$latestCategory}" : 'No Steps' }}
+                                    {{ $latestStep ? "{$latestStatusLabel} - {$latestCategoryLabel}" : 'Χωρίς βήματα' }}
                                 </span>
                             </div>
 
@@ -145,15 +146,15 @@
                                                     STEP {{ $index + 1 }}
                                                 </span>
 
-                                                <h5>{{ $step->step_category }}</h5>
+                                                <h5>{{ App\Enums\StepCategory::labelFor($step->step_category) }}</h5>
 
                                                 <select name="current_status[{{ $step->id }}]"
                                                     class="form-select status-select status-{{ $statusLower }}"
-                                                    {{ $step->current_status != 'Pending' ? 'disabled' : '' }}>
+                                                    {{ $step->current_status != App\Enums\StatusCategory::PENDING->value ? 'disabled' : '' }}>
 
                                                     @foreach ($status_categories as $status_category)
                                                         <option value="{{ $status_category['id'] }}"
-                                                            {{ $status_category['title'] == $step->current_status ? 'selected' : '' }}>
+                                                            {{ $status_category['id'] == $step->current_status ? 'selected' : '' }}>
 
                                                             {{ $status_category['title'] }}
 
