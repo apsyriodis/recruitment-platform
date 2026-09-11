@@ -11,11 +11,14 @@ class TimelineFactory extends Factory
 
     public function definition(): array
     {
+        $firstNames = ['Ελένη', 'Νίκος', 'Μαρία', 'Γιώργος', 'Σοφία', 'Δημήτρης', 'Κατερίνα', 'Ανδρέας'];
+        $lastNames = ['Παπαδοπούλου', 'Αντωνιάδης', 'Κωνσταντίνου', 'Δημητρίου', 'Νικολάου', 'Βλάχος', 'Μαυρίδη', 'Στεφανίδης'];
+
         return [
-            'candidate_name' => $this->faker->firstName,
-            'candidate_surname' => $this->faker->lastName,
-            'recruiter_name' => $this->faker->firstName,
-            'recruiter_surname' => $this->faker->lastName,
+            'candidate_name' => $this->faker->randomElement($firstNames),
+            'candidate_surname' => $this->faker->randomElement($lastNames),
+            'recruiter_name' => $this->faker->randomElement($firstNames),
+            'recruiter_surname' => $this->faker->randomElement($lastNames),
         ];
     }
 }
