@@ -51,19 +51,19 @@ class StepFeatureTest extends TestCase
 
         for ($i = 0; $i < 3; $i++) {
             $payload = [
-                'step_category' => $step_categories[$i]['title'],
-                'status_category' => $status_categories[$i]['title'],
+                'step_category' => $step_categories[$i]['id'],
+                'status_category' => $status_categories[$i]['id'],
             ];
 
             $this->postJson("/api/step/{$timeline->id}", $payload);
 
             $this->assertDatabaseHas('steps', [
                 'timeline_id' => $timeline->id,
-                'step_category' => $step_categories[$i]['title'],
+                'step_category' => $step_categories[$i]['id'],
             ]);
 
             $this->assertDatabaseHas('step_status_history', [
-                'status_category' => $status_categories[$i]['title'],
+                'status_category' => $status_categories[$i]['id'],
             ]);
         }
 
