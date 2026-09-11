@@ -121,7 +121,7 @@
                                 <div class="timeline">
 
                                     @foreach ($timeline->steps as $index => $step)
-                                        <div class="step">
+                                        <div class="step" data-step-value="{{ $step->step_category }}">
 
                                             <div class="step-number-wrapper">
                                                 {{-- Δυναμική κλάση κύκλου ανάλογα με το status --}}
@@ -667,16 +667,18 @@
                 });
             });
 
-            // --- 2. Status Change Logic (Άμεση Αλλαγή Χρωμάτων & UI) ---
+            // --- 2. Status Change Logic ---
             document.querySelectorAll('select[name^="current_status"]').forEach(function(selectElement) {
+
+                // Κρατάμε την προηγούμενη τιμή ώστε να μπορούμε να επαναφέρουμε σε σφάλμα.
+                selectElement.dataset.previousValue = selectElement.value;
 
                 selectElement.addEventListener('change', function() {
 
-                    const stepId = this.name.match(/\d+/)[0];
-                    const newStatus = this.value;
-                    const selectedOptionText = this.options[this.selectedIndex].text.trim()
-                        .toLowerCase();
                     const currentSelect = this;
+                    const stepId = currentSelect.name.match(/\d+/)[0];
+                    const newStatus = currentSelect.value;
+                    const previousValue = currentSelect.dataset.previousValue;
 
                     const stepItem = currentSelect.closest('.step');
                     const circle = stepItem ? stepItem.querySelector('.circle') : null;
@@ -684,156 +686,86 @@
                     const badgeDot = card ? card.querySelector('.status-dot') : null;
 
                     const xhr = new XMLHttpRequest();
-
                     xhr.open('POST', '{{ route('status.store') }}', true);
                     xhr.setRequestHeader('Content-Type', 'application/json');
+                    xhr.setRequestHeader('Accept', 'application/json');
                     xhr.setRequestHeader('X-CSRF-TOKEN', '{{ csrf_token() }}');
 
                     xhr.onreadystatechange = function() {
-                        if (xhr.status === 200) {
-                            showToast('Status updated successfully', 'success');
-
-                            currentSelect.disabled = true;
-                            currentSelect.classList.remove('status-reject', 'status-rejected',
-                                'status-complete', 'status-completed');
-
-                            const stepTitleElement = stepItem.querySelector('h5');
-                            const stepName = stepTitleElement ? stepTitleElement.textContent
-                                .trim().toLowerCase() : '';
-                            const totalSteps = card.querySelectorAll('.step').length;
-
-                            if (selectedOptionText.includes('reject')) {
-                                currentSelect.classList.add('status-reject');
-                                if (circle) {
-                                    circle.classList.remove('pending-circle',
-                                        'completed-circle');
-                                    circle.classList.add('rejected-circle');
-                                }
-                                if (badgeDot) {
-                                    badgeDot.className = 'status-dot reject';
-                                }
-                            } else if (selectedOptionText.includes('complete')) {
-                                currentSelect.classList.add('status-complete');
-                                if (circle) {
-                                    circle.classList.remove('pending-circle',
-                                        'rejected-circle');
-                                    circle.classList.add('completed-circle');
-                                }
-                                if (badgeDot) {
-                                    badgeDot.className = 'status-dot complete';
-                                }
-                            }
-
-                            // --- ΕΛΕΓΧΟΣ ΓΙΑ ΤΑΞΙΝΟΜΗΣΗ / ΑΦΑΙΡΕΣΗ ΚΟΥΜΠΙΟΥ ---
-                            // Αν είναι προσφορά (offer) ή έχουμε φτάσει τα 3 βήματα, αφαιρούμε το κουμπί αν υπάρχει
-                            if (stepName.includes('offer') || totalSteps >= 3 || !
-                                selectedOptionText.includes('complete')) {
-                                const existingWrapper = card.querySelector('.add-step-wrapper');
-                                if (existingWrapper) {
-                                    existingWrapper.remove();
-                                }
-                            } else {
-                                // Διαφορετικά, αν επιτρέπεται, το εμφανίζουμε αν δεν υπάρχει ήδη
-                                let addStepWrapper = card.querySelector('.add-step-wrapper');
-                                if (!addStepWrapper) {
-                                    addStepWrapper = document.createElement('div');
-                                    addStepWrapper.className = 'add-step-wrapper';
-                                    const timelineId = card.querySelector('.timeline-id')
-                                        .textContent.replace('#', '').trim();
-                                    addStepWrapper.innerHTML = `
-                <a href="/step/new/${timelineId}" class="btn btn-dark btn-sm">
-                    + Next step
-                </a>
-            `;
-                                    const cardBody = card.querySelector('.timeline-card-body');
-                                    cardBody.insertBefore(addStepWrapper, cardBody.firstChild);
-                                }
-                            }
-
-                            // Μέσα στο block επιτυχίας (xhr.status === 200):
-                            if (badgeDot) {
-                                const badgeContainer = badgeDot.closest(
-                                    '.timeline-status-badge');
-                                const statusTextSpan = badgeContainer ? badgeContainer
-                                    .querySelector('.status-text') : null;
-
-                                if (selectedOptionText.includes('reject')) {
-                                    badgeDot.className = 'status-dot reject';
-                                } else if (selectedOptionText.includes('complete')) {
-                                    badgeDot.className = 'status-dot complete';
-                                } else {
-                                    badgeDot.className = 'status-dot pending';
-                                }
-
-                                if (statusTextSpan) {
-                                    const statusTitle = currentSelect.options[currentSelect
-                                        .selectedIndex].text.trim();
-                                    const stepTitleElement = stepItem.querySelector('h5');
-                                    const stepCategory = stepTitleElement ? stepTitleElement
-                                        .textContent.trim() : '';
-
-                                    statusTextSpan.textContent =
-                                        `${statusTitle} - ${stepCategory}`;
-                                    badgeContainer.classList.remove('empty');
-                                }
-                            }
+                        // Χωρίς αυτόν τον έλεγχο ο κώδικας τρέχει και στα readyState 2 και 3,
+                        // δηλαδή τρεις φορές ανά αίτημα.
+                        if (xhr.readyState !== 4) {
+                            return;
                         }
-                    };
 
-                    // Αν το status είναι complete και υπάρχουν λιγότερα από 3 βήματα, εμφανίζουμε το κουμπί Add next step
-                    if (selectedOptionText.includes('complete')) {
-                        let addStepWrapper = card.querySelector('.add-step-wrapper');
-                        if (!addStepWrapper) {
-                            addStepWrapper = document.createElement('div');
-                            addStepWrapper.className = 'add-step-wrapper';
-
-                            // Δημιουργία του link με βάση το timeline id
-                            const timelineId = card.querySelector('.timeline-id').textContent
-                                .replace('#', '').trim();
-                            addStepWrapper.innerHTML = `
-                                <a href="/step/new/${timelineId}" class="btn btn-dark btn-sm">
-                                    + Next step
-                                </a>
-                            `;
-
-                            // Το τοποθετούμε στην αρχή του body της καρτέλας
-                            const cardBody = card.querySelector('.timeline-card-body');
-                            cardBody.insertBefore(addStepWrapper, cardBody.firstChild);
+                        if (xhr.status !== 200) {
+                            let message = 'Η ενημέρωση απέτυχε.';
+                            try {
+                                const parsed = JSON.parse(xhr.responseText);
+                                if (parsed && parsed.message) {
+                                    message = parsed.message;
+                                }
+                            } catch (e) {
+                                // Κρατάμε το γενικό μήνυμα.
+                            }
+                            showToast(message, 'error');
+                            currentSelect.value = previousValue;
+                            return;
                         }
-                    } else if (selectedOptionText.includes('complete')) {
-                        currentSelect.classList.add('status-complete');
+
+                        showToast('Η κατάσταση ενημερώθηκε', 'success');
+
+                        currentSelect.dataset.previousValue = newStatus;
+                        currentSelect.disabled = true;
+                        currentSelect.classList.remove('status-pending', 'status-complete', 'status-reject');
+                        currentSelect.classList.add('status-' + newStatus.toLowerCase());
+
                         if (circle) {
-                            circle.classList.remove('pending-circle', 'rejected-circle');
-                            circle.classList.add('completed-circle');
+                            circle.classList.remove('pending-circle', 'completed-circle', 'rejected-circle');
+                            if (newStatus === 'Complete') {
+                                circle.classList.add('completed-circle');
+                            } else if (newStatus === 'Reject') {
+                                circle.classList.add('rejected-circle');
+                            } else {
+                                circle.classList.add('pending-circle');
+                            }
                         }
+
                         if (badgeDot) {
-                            badgeDot.className = 'status-dot complete';
+                            badgeDot.className = 'status-dot ' + newStatus.toLowerCase();
+
+                            const badgeContainer = badgeDot.closest('.timeline-status-badge');
+                            const statusTextSpan = badgeContainer ? badgeContainer.querySelector('.status-text') : null;
+
+                            if (statusTextSpan) {
+                                const statusTitle = currentSelect.options[currentSelect.selectedIndex].text.trim();
+                                const stepTitleElement = stepItem.querySelector('h5');
+                                const stepCategory = stepTitleElement ? stepTitleElement.textContent.trim() : '';
+                                statusTextSpan.textContent = `${statusTitle} - ${stepCategory}`;
+                                badgeContainer.classList.remove('empty');
+                            }
                         }
 
-                        // --- ΕΜΦΑΝΙΣΗ ΚΟΥΜΠΙΟΥ ΜΟΝΟ ΑΝ ΔΕΝ ΕΙΣΑΙ ΣΤΟ OFFER / < 3 ΒΗΜΑΤΑ ---
-                        const stepTitleElement = stepItem.querySelector('h5');
-                        const stepName = stepTitleElement ? stepTitleElement.textContent.trim()
-                            .toLowerCase() : '';
+                        // Το κουμπί επόμενου βήματος: εμφανίζεται μόνο όταν το βήμα
+                        // ολοκληρώθηκε, δεν είναι το τελευταίο της ροής, και υπάρχει χώρος.
+                        const isLastStepOfFlow = stepItem.dataset.stepValue === 'Offer';
                         const totalSteps = card.querySelectorAll('.step').length;
+                        const existingWrapper = card.querySelector('.add-step-wrapper');
 
-                        // Αν το βήμα ΔΕΝ είναι offer και τα συνολικά βήματα είναι λιγότερα από 3
-                        if (!stepName.includes('offer') && totalSteps < 3) {
-                            let addStepWrapper = card.querySelector('.add-step-wrapper');
-                            if (!addStepWrapper) {
-                                addStepWrapper = document.createElement('div');
+                        if (newStatus === 'Complete' && !isLastStepOfFlow && totalSteps < 3) {
+                            if (!existingWrapper) {
+                                const timelineId = card.querySelector('.timeline-id').textContent.replace('#', '').trim();
+                                const addStepWrapper = document.createElement('div');
                                 addStepWrapper.className = 'add-step-wrapper';
-                                const timelineId = card.querySelector('.timeline-id').textContent
-                                    .replace('#', '').trim();
-                                addStepWrapper.innerHTML = `
-                                    <a href="/timeline/${timelineId}/step/create" class="btn btn-dark btn-sm">
-                                        + Next step
-                                    </a>
-                                `;
+                                addStepWrapper.innerHTML =
+                                    `<a href="/step/new/${timelineId}" class="btn btn-dark btn-sm">+ Επόμενο βήμα</a>`;
                                 const cardBody = card.querySelector('.timeline-card-body');
                                 cardBody.insertBefore(addStepWrapper, cardBody.firstChild);
                             }
+                        } else if (existingWrapper) {
+                            existingWrapper.remove();
                         }
-                    }
+                    };
 
                     xhr.send(JSON.stringify({
                         step_id: stepId,
