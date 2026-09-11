@@ -54,12 +54,19 @@ class TimelineController extends Controller
 
     private function validateRequest($request): void
     {
+        $rules = ['required', 'regex:/^[\p{L}\s\-\']+$/u', 'max:50'];
+
         $request->validate(
             [
-                'recruiter_name' => ['required', 'regex:/^[a-zA-Z\s\-\' ]+$/'],
-                'recruiter_surname' => ['required', 'regex:/^[a-zA-Z\s\-\' ]+$/'],
-                'candidate_name' => ['required', 'regex:/^[a-zA-Z\s\-\' ]+$/'],
-                'candidate_surname' => ['required', 'regex:/^[a-zA-Z\s\-\' ]+$/'],
+                'recruiter_name' => $rules,
+                'recruiter_surname' => $rules,
+                'candidate_name' => $rules,
+                'candidate_surname' => $rules,
+            ],
+            [
+                'required' => 'Το πεδίο είναι υποχρεωτικό.',
+                'regex' => 'Επιτρέπονται μόνο γράμματα, κενά και παύλες.',
+                'max' => 'Το πεδίο δεν μπορεί να ξεπερνά τους 50 χαρακτήρες.',
             ]
         );
     }
