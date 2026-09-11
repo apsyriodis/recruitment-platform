@@ -87,4 +87,29 @@ class StepFeatureTest extends TestCase
 
         $response->assertStatus(422);
     }
+
+    public function test_web_form_redirects_back_with_error_instead_of_json()
+    {
+        $timeline = \App\Models\Timeline::factory()->create();
+
+        // Το πρώτο βήμα υπάρχει ήδη μόνο όταν το timeline φτιαχτεί από τον controller,
+        // οπότε εδώ το δημιουργούμε ρητά για να προκαλέσουμε διπλή κατηγορία.
+        $step = \App\Models\Step::create([
+            'timeline_id' => $timeline->id,
+            'step_category' => StepCategory::FIRST_INTERVIEW->value,
+        ]);
+
+        \App\Models\StepStatusHistory::create([
+            'step_id' => $step->id,
+            'status_category' => StatusCategory::PENDING->value,
+        ]);
+
+        $response = $this->post("/step/{$timeline->id}", [
+            'step_category' => StepCategory::FIRST_INTERVIEW->value,
+            'status_category' => StatusCategory::PENDING->value,
+        ]);
+
+        $response->assertRedirect();
+        $response->assertSessionHas('error');
+    }
 }

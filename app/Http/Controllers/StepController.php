@@ -8,6 +8,7 @@ use App\Models\Step;
 use App\Models\StepStatusHistory;
 use App\Models\Timeline;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rules\Enum;
 
@@ -62,23 +63,27 @@ class StepController extends Controller
         ]);
     }
 
-    private function checkRestrictions($request): JsonResponse|bool
+    private function checkRestrictions($request): JsonResponse|RedirectResponse|bool
     {
         $timeline = Timeline::find($request['timeline_id']);
 
         if (count($timeline->steps) >= 3) {
-            return response()->json([
-                'message' => 'A timeline cannot have more than 3 steps.'
-            ], 422);
+            return $this->refuse($request, 'Μια διαδικασία δεν μπορεί να έχει πάνω από 3 βήματα.');
         }
 
-
         if (in_array($request['step_category'], $timeline->stepCategories())) {
-            return response()->json([
-                'message' => 'This step has already been created for this timeline.'
-            ], 422);
+            return $this->refuse($request, 'Το βήμα αυτό έχει ήδη καταχωρηθεί για τη συγκεκριμένη διαδικασία.');
         }
 
         return false;
+    }
+
+    private function refuse($request, string $message): JsonResponse|RedirectResponse
+    {
+        if ($request->expectsJson()) {
+            return response()->json(['message' => $message], 422);
+        }
+
+        return redirect()->back()->with('error', $message);
     }
 }
