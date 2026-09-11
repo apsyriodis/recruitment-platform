@@ -36,7 +36,7 @@ class StepController extends Controller
 
         $this->createStepAndHistory($request);
 
-        session()->flash('success', 'Step Created Successfully!');
+        session()->flash('success', 'Το βήμα καταχωρήθηκε.');
 
         return redirect()->route('home');
     }

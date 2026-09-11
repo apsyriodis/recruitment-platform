@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('title')
-    <title>New</title>
+    <title>Νέα Διαδικασία</title>
 @endsection
 
 @section('content')
@@ -21,8 +21,8 @@
                 </div>
 
                 <div class="form-header-text">
-                    <span class="eyebrow">RECRUITMENT PLATFORM</span>
-                    <p>Add the recruiter and candidate details to get started.</p>
+                    <span class="eyebrow">ΠΛΑΤΦΟΡΜΑ ΠΡΟΣΛΗΨΕΩΝ</span>
+                    <p>Συμπληρώστε τα στοιχεία υπευθύνου και υποψηφίου.</p>
                 </div>
 
             </div>
@@ -35,24 +35,24 @@
                 <div class="form-body">
 
                     <div class="section-title">
-                        Recruiter information
+                        Στοιχεία υπευθύνου
                     </div>
 
                     <div class="row">
 
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label for="recruiter_name">First Name</label>
+                                <label for="recruiter_name">Όνομα</label>
                                 <input type="text" class="form-control" id="recruiter_name" name="recruiter_name"
-                                    placeholder="Enter recruiter first name" required>
+                                    placeholder="π.χ. Ελένη" required>
                             </div>
                         </div>
 
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label for="recruiter_surname">Last Name</label>
+                                <label for="recruiter_surname">Επώνυμο</label>
                                 <input type="text" class="form-control" id="recruiter_surname" name="recruiter_surname"
-                                    placeholder="Enter recruiter last name" required>
+                                    placeholder="π.χ. Παπαδοπούλου" required>
                             </div>
                         </div>
 
@@ -60,24 +60,24 @@
 
 
                     <div class="section-title candidate-section">
-                        Candidate information
+                        Στοιχεία υποψηφίου
                     </div>
 
                     <div class="row">
 
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label for="candidate_name">First Name</label>
+                                <label for="candidate_name">Όνομα</label>
                                 <input type="text" class="form-control" id="candidate_name" name="candidate_name"
-                                    placeholder="Enter candidate first name" required>
+                                    placeholder="π.χ. Γιώργος" required>
                             </div>
                         </div>
 
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label for="candidate_surname">Last Name</label>
+                                <label for="candidate_surname">Επώνυμο</label>
                                 <input type="text" class="form-control" id="candidate_surname" name="candidate_surname"
-                                    placeholder="Enter candidate last name" required>
+                                    placeholder="π.χ. Δημητρίου" required>
                             </div>
                         </div>
 
@@ -88,12 +88,12 @@
                 {{-- Footer --}}
                 <div class="form-footer">
 
-                    <a href="{{ url()->previous() }}" class="btn btn-light">
-                        Cancel
+                    <a href="{{ route('home') }}" class="btn btn-light">
+                        Άκυρο
                     </a>
 
                     <button type="submit" class="btn btn-dark">
-                        Create
+                        Καταχώρηση
                     </button>
 
                 </div>

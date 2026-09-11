@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('title')
-    <title>New Step</title>
+    <title>Νέο Βήμα</title>
 @endsection
 
 @section('content')
@@ -21,8 +21,8 @@
                 </div>
 
                 <div class="form-header-text">
-                    <span class="eyebrow">RECRUITMENT TIMELINE</span>
-                    <h1>Create a new step</h1>
+                    <span class="eyebrow">ΔΙΑΔΙΚΑΣΙΑ ΠΡΟΣΛΗΨΗΣ</span>
+                    <h1>Νέο βήμα</h1>
                 </div>
 
             </div>
@@ -45,11 +45,11 @@
                     <div class="form-group">
 
                         <label>
-                            Step
+                            Βήμα
                         </label>
 
                         <div class="fixed-field">
-                            <span>{{ $stepCategory }}</span>
+                            <span>{{ App\Enums\StepCategory::labelFor($stepCategory) }}</span>
                         </div>
 
                         <input type="hidden" name="step_category" value="{{ $stepCategory }}">
@@ -60,7 +60,7 @@
                     <div class="form-group">
 
                         <label for="status_category">
-                            Initial Status
+                            Αρχική κατάσταση
                         </label>
 
                         <select class="form-select custom-select" id="status_category" name="status_category">
@@ -82,12 +82,12 @@
                 {{-- Footer --}}
                 <div class="form-footer">
 
-                    <a href="{{ url()->previous() }}" class="btn btn-light">
-                        Cancel
+                    <a href="{{ route('home') }}" class="btn btn-light">
+                        Άκυρο
                     </a>
 
                     <button type="submit" class="btn btn-dark">
-                        Create
+                        Καταχώρηση
                     </button>
 
                 </div>

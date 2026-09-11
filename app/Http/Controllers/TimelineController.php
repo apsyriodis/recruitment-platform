@@ -40,7 +40,7 @@ class TimelineController extends Controller
 
         $this->createFirstStep($timeline->id);
 
-        session()->flash('success', 'Timeline Created Successfully!');
+        session()->flash('success', 'Η διαδικασία καταχωρήθηκε.');
 
         return redirect()->route('home');
     }

@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('title')
-    <title>Recruitment Platform</title>
+    <title>Πλατφόρμα Προσλήψεων</title>
 @endsection
 
 @section('content')
@@ -10,19 +10,19 @@
         {{-- Header --}}
         <div class="page-header">
             <div>
-                <h2>Recruitment Platform</h2>
-                <p>Timeline - Track every candidate's recruitment journey</p>
+                <h2>Πλατφόρμα Προσλήψεων</h2>
+                <p>Παρακολούθηση της πορείας κάθε υποψηφίου</p>
             </div>
 
             <a href="{{ route('timeline.create') }}" class="btn btn-dark">
-                + New
+                + Νέα Διαδικασία
             </a>
         </div>
 
         {{-- Timelines --}}
         <div class="timeline-list">
 
-            @foreach ($timelines as $timeline)
+            @forelse ($timelines as $timeline)
                 {{-- Default κατάσταση: Κλειστή (δεν έχει την κλάση is-open) --}}
                 <div class="timeline-card">
 
@@ -33,11 +33,11 @@
 
                             <div class="person">
                                 <div class="person-icon recruiter-icon">
-                                    R
+                                    {{ mb_substr($timeline->recruiter_name, 0, 1) }}
                                 </div>
 
                                 <div>
-                                    <small>Recruiter</small>
+                                    <small>Υπεύθυνος</small>
                                     <strong>
                                         {{ $timeline->recruiter_name . ' ' . $timeline->recruiter_surname }}
                                     </strong>
@@ -48,11 +48,11 @@
 
                             <div class="person">
                                 <div class="person-icon candidate-icon">
-                                    C
+                                    {{ mb_substr($timeline->candidate_name, 0, 1) }}
                                 </div>
 
                                 <div>
-                                    <small>Candidate</small>
+                                    <small>Υποψήφιος</small>
                                     <strong>
                                         {{ $timeline->candidate_name . ' ' . $timeline->candidate_surname }}
                                     </strong>
@@ -101,7 +101,7 @@
                                 $timeline->steps()->latest()->first()?->current_status == App\Enums\StatusCategory::COMPLETE->value)
                             <div class="add-step-wrapper">
                                 <a href="{{ route('step.create', $timeline->id) }}" class="btn btn-dark btn-sm">
-                                    + Next step
+                                    + Επόμενο βήμα
                                 </a>
                             </div>
                         @endif
@@ -111,9 +111,9 @@
 
                             <div class="timeline-title">
                                 @if (count($timeline->steps))
-                                    <span>Recruitment progress</span>
+                                    <span>Πορεία διαδικασίας</span>
                                 @else
-                                    <span class="empty-title">No steps have been created yet</span>
+                                    <span class="empty-title">Δεν έχουν καταχωρηθεί βήματα ακόμη</span>
                                 @endif
                             </div>
 
@@ -143,7 +143,7 @@
                                             <div class="step-info">
 
                                                 <span class="step-label">
-                                                    STEP {{ $index + 1 }}
+                                                    ΒΗΜΑ {{ $index + 1 }}
                                                 </span>
 
                                                 <h5>{{ App\Enums\StepCategory::labelFor($step->step_category) }}</h5>
@@ -176,7 +176,11 @@
                     </div> {{-- Τέλος .timeline-card-body --}}
 
                 </div>
-            @endforeach
+            @empty
+                <div class="empty-list">
+                    Δεν υπάρχουν καταχωρημένες διαδικασίες ακόμη.
+                </div>
+            @endforelse
 
         </div>
 
@@ -410,6 +414,16 @@
 
         .empty-title {
             color: #9ca3af !important;
+        }
+
+        .empty-list {
+            background: #fff;
+            border: 1px dashed var(--border);
+            border-radius: 14px;
+            padding: 48px 24px;
+            text-align: center;
+            color: var(--muted);
+            font-weight: 600;
         }
 
         /* --- TIMELINE LINE --- */
