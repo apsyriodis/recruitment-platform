@@ -43,7 +43,7 @@ class DatabaseSeeder extends Seeder
             [
                 'recruiter' => ['Νίκος', 'Αντωνιάδης'],
                 'candidate' => ['Δημήτρης', 'Βλάχος'],
-                'steps' => [[$first, $pending]],
+                'steps' => [[$first, $complete]],
             ],
             [
                 'recruiter' => ['Νίκος', 'Αντωνιάδης'],

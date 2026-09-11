@@ -48,7 +48,7 @@ class StepStatusHistoryController extends Controller
 
         if (in_array(StatusCategory::COMPLETE->value, $statuses) || in_array(StatusCategory::REJECT->value, $statuses)) {
             return response()->json([
-                'message' => 'You can only change a status from Pending.'
+                'message' => 'Η κατάσταση αλλάζει μόνο από «Σε εξέλιξη».'
             ], 422);
         }
 

@@ -637,7 +637,8 @@
         }
 
         .toast.show {
-            opacity: 1 transform: translateY(0);
+            opacity: 1;
+            transform: translateY(0);
         }
 
         .toast.success {
