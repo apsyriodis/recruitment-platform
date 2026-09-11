@@ -133,6 +133,14 @@
             border-bottom: 1px solid #f3f4f6;
         }
 
+        .form-header h1 {
+            margin: 0;
+            font-size: 25px;
+            font-weight: 800;
+            color: #111827;
+            line-height: 1.2;
+        }
+
         .form-icon {
             width: 48px;
             height: 48px;
